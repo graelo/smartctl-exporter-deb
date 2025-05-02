@@ -1,0 +1,4 @@
+#!/bin/sh
+systemctl daemon-reload
+systemctl enable smartctl-exporter.service
+systemctl start smartctl-exporter.service

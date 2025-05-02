@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+export DH_GOPKG = github.com/prometheus-community/smartctl_exporter
+export DH_GOLANG_INSTALL_EXTRA = vendor
+export GOFLAGS = -mod=vendor
+export DEB_BUILD_MAINT_OPTIONS = optimize=-lto
+export CGO_ENABLED = 0
+
+%:
+	dh $@ --with=golang --buildsystem=golang
+
+override_dh_auto_build:
+	# No-op - binary already built
+
+override_dh_auto_install:
+	install -D -m0755 smartctl_exporter debian/smartctl-exporter/usr/bin/smartctl_exporter
+
+override_dh_auto_test:
+    # Skip tests requiring unavailable dependencies

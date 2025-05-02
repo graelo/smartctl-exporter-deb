@@ -1,0 +1,2 @@
+smartctl_exporter usr/bin/
+debian/smartctl-exporter.service lib/systemd/system/

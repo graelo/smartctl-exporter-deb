@@ -1,0 +1,5 @@
+smartctl-exporter (0.14.0-1) unstable; urgency=medium
+
+  * Initial release of the debian package.
+
+ -- graelo <graelo@graelo.cc>  Fri, 02 May 2025 23:19:00 +0200
