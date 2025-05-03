@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     tags:
-      - 'v*'
+      - '*'
   pull_request:
   workflow_dispatch:
 
@@ -25,7 +25,8 @@ jobs:
           sudo apt-get install -y \
               debhelper-compat \
               dh-golang \
-              golang-go \
+              golang-any \
+              golang-github-prometheus-common-dev \
               smartmontools \
               build-essential
 
@@ -35,35 +36,36 @@ jobs:
           cd smartctl-exporter-${{ env.VERSION }}
           git checkout v${{ env.VERSION }}
 
-          go mod tidy
-          go mod vendor
-
           # Copy ALL packaging files including changelog
           cp -a ../debian .
 
-      - name: Build binary once
-        working-directory: ./smartctl-exporter-${{ env.VERSION }}
-        env:
-          GOPROXY: "off"
-          CGO_ENABLED: "0"   # Disable CGO explicitly
-        run: |
-          # Single build with module verification
-          go build -v -mod=vendor -trimpath -ldflags="-s -w" -o smartctl_exporter
-
       - name: Build Debian package
         working-directory: ./smartctl-exporter-${{ env.VERSION }}
+        env:
+          CGO_ENABLED: "0"
+          DH_GOLANG_INSTALL_ALL: "1"
         run: |
-          # Create .orig tarball
-          tar czvf ../smartctl-exporter_${{ env.VERSION }}.orig.tar.gz --exclude=.git .
+          dh clean --buildsystem=golang
 
-          # Build package without recompiling
+          mkdir -p .gopath/src/github.com/prometheus-community
+          ln -sfn "$PWD" ".gopath/src/github.com/prometheus-community/smartctl_exporter"
+          export GOPATH="$PWD/.gopath"
+
+          go mod tidy
+          # go mod vendor
+          go mod vendor -v 2>&1 | grep -v 'testdata/'  # Filter out test data
+
+          ls -l vendor/google.golang.org/protobuf/internal/editiondefaults/editions_defaults.binpb
+          ls -l vendor/github.com/prometheus/exporter-toolkit/web/landing_page.css
+
           dpkg-buildpackage -us -uc -b
 
       - name: Prepare CHANGELOG
         run: |
-          echo "```" > CHANGELOG.md
+          printf "Changelog:\n" > CHANGELOG.md
+          echo '```' >> CHANGELOG.md
           cat debian/changelog >> CHANGELOG.md
-          echo "```" >> CHANGELOG.md
+          echo '```' >> CHANGELOG.md
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

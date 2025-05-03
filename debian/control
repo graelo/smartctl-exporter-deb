@@ -2,8 +2,12 @@ Source: smartctl-exporter
 Section: admin
 Priority: optional
 Maintainer: graelo <graelo@graelo.cc>
-Build-Depends: debhelper-compat (= 13), dh-golang, golang-go, smartmontools (>=7.3)
-Standards-Version: 4.5.1
+Build-Depends: debhelper-compat (= 13),
+               dh-golang,
+               golang-any,
+               golang-github-prometheus-common-dev,
+               smartmontools (>=7.3)
+Standards-Version: 4.6.2
 Homepage: https://github.com/prometheus-community/smartctl_exporter
 
 Package: smartctl-exporter

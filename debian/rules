@@ -1,19 +1,13 @@
 #!/usr/bin/make -f
 
 export DH_GOPKG = github.com/prometheus-community/smartctl_exporter
-export DH_GOLANG_INSTALL_EXTRA = vendor
-export GOFLAGS = -mod=vendor
-export DEB_BUILD_MAINT_OPTIONS = optimize=-lto
+export GOFLAGS = -mod=vendor -trimpath
 export CGO_ENABLED = 0
+export DEB_BUILD_MAINT_OPTIONS = optimize=-lto
+export DH_GOLANG_INSTALL_EXTRA = vendor/google.golang.org/protobuf/internal/editiondefaults/editions_defaults.binpb vendor/github.com/prometheus/exporter-toolkit/web/landing_page.css
 
 %:
-	dh $@ --with=golang --buildsystem=golang
+	dh $@ --with=golang --buildsystem=golang --builddirectory=obj-$(DEB_HOST_GNU_TYPE)
 
-override_dh_auto_build:
-	# No-op - binary already built
-
-override_dh_auto_install:
-	install -D -m0755 smartctl_exporter debian/smartctl-exporter/usr/bin/smartctl_exporter
-
-override_dh_auto_test:
-    # Skip tests requiring unavailable dependencies
+override_dh_strip_nondeterminism:
+	dh_strip_nondeterminism -X.github/ -Xtestdata/ -X*.zip
