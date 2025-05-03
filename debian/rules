@@ -4,10 +4,14 @@ export DH_GOPKG = github.com/prometheus-community/smartctl_exporter
 export GOFLAGS = -mod=vendor -trimpath
 export CGO_ENABLED = 0
 export DEB_BUILD_MAINT_OPTIONS = optimize=-lto
-export DH_GOLANG_INSTALL_EXTRA = vendor/google.golang.org/protobuf/internal/editiondefaults/editions_defaults.binpb vendor/github.com/prometheus/exporter-toolkit/web/landing_page.css
+export DH_GOLANG_INSTALL_ALL = 1
+# export DH_GOLANG_INSTALL_EXTRA = vendor/google.golang.org/protobuf/internal/editiondefaults/editions_defaults.binpb vendor/github.com/prometheus/exporter-toolkit/web/landing_page.css vendor/github.com/prometheus/exporter-toolkit/web/landing_page.html
 
 %:
 	dh $@ --with=golang --buildsystem=golang --builddirectory=obj-$(DEB_HOST_GNU_TYPE)
 
 override_dh_strip_nondeterminism:
 	dh_strip_nondeterminism -X.github/ -Xtestdata/ -X*.zip
+
+override_dh_auto_install:
+	dh_auto_install -- --no-source
